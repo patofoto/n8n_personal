@@ -1,0 +1,152 @@
+{
+  "updatedAt": "2026-04-03T01:16:15.164Z",
+  "createdAt": "2026-04-01T16:29:27.249Z",
+  "id": "98VlQoL7aP11Exjb",
+  "name": "yt-dlp movies",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "yt-dlp",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        -320
+      ],
+      "id": "ee50a803-f562-41f8-9385-5581d8ee3e0e",
+      "name": "Webhook",
+      "webhookId": "a87fbe0a-3234-4619-9ca0-ecba6eecd631"
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "=YTDLP=\"/home/linuxbrew/.linuxbrew/bin/yt-dlp\"\n  FFMPEG=\"/home/linuxbrew/.linuxbrew/opt/ffmpeg-full/bin/ffmpeg\"\n  FFPROBE=\"/home/linuxbrew/.linuxbrew/opt/ffmpeg-full/bin/ffprobe\"\n  OUTDIR=\"/mnt/qnap_multimedia/movies/movies\"\n  URL=\"{{ $json.query.url }}\"\n\n  # Timestamp marker before download\n  touch /tmp/yt_marker\n\n  # Download video + metadata + thumbnail\n  $YTDLP \\\n    --write-info-json \\\n    --write-thumbnail \\\n    --convert-thumbnails jpg \\\n    --embed-thumbnail \\\n    --add-metadata \\\n    -o \"$OUTDIR/%(uploader)s - %(title)s.%(ext)s\" \\\n    \"$URL\"\n\n  # Find the video file newer than our marker\n  FILEPATH=$(find \"$OUTDIR\" -maxdepth 1 -newer /tmp/yt_marker \\( -iname \"*.mp4\" -o -iname \"*.mkv\" -o -iname \"*.webm\" -o -iname \"*.mov\" \\) | head -1)\n\n  if [ -z \"$FILEPATH\" ]; then\n    echo \"Could not find downloaded file\"\n    exit 1\n  fi\n\n  echo \"Downloaded: $FILEPATH\"\n  BASENAME=\"${FILEPATH%.*}\"\n\n  # Get duration in seconds\n  DURATION=$($FFPROBE -v error -show_entries format=duration -of csv=p=0 \"$FILEPATH\" | cut -d. -f1)\n\n  # Extract 5 frames between 10% and 75%\n  MAX=$(( DURATION * 75 / 100 ))\n  MIN=$(( DURATION * 10 / 100 ))\n  STEP=$(( (MAX - MIN) / 4 ))\n\n  for i in 0 1 2 3 4; do\n    TS=$(( MIN + i * STEP ))\n    $FFMPEG -ss $TS -i \"$FILEPATH\" -vframes 1 -q:v 2 \"${BASENAME}-thumb$((i+1)).jpg\" -y 2>/dev/null\n    echo \"Saved thumb$((i+1)) at ${TS}s\"\n  done"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        464,
+        -320
+      ],
+      "id": "5ab02c57-9960-4dfb-953c-9d6adf205614",
+      "name": "download with thumbnails",
+      "executeOnce": false,
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "ssr7RR2HiglJLW6v",
+          "name": "SSH Private Key"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "download with thumbnails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedPerExecution": 1
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "2d9f6d88-5db5-4442-9c55-c6dd42f51ef2",
+  "activeVersionId": "2d9f6d88-5db5-4442-9c55-c6dd42f51ef2",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-04-01T16:29:27.251Z",
+      "createdAt": "2026-04-01T16:29:27.251Z",
+      "role": "workflow:owner",
+      "workflowId": "98VlQoL7aP11Exjb",
+      "projectId": "cO5zu2AXDUFKk84O"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-06-07T02:31:50.000Z",
+    "createdAt": "2026-04-03T01:16:15.164Z",
+    "versionId": "2d9f6d88-5db5-4442-9c55-c6dd42f51ef2",
+    "workflowId": "98VlQoL7aP11Exjb",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "yt-dlp",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          256,
+          -320
+        ],
+        "id": "ee50a803-f562-41f8-9385-5581d8ee3e0e",
+        "name": "Webhook",
+        "webhookId": "a87fbe0a-3234-4619-9ca0-ecba6eecd631"
+      },
+      {
+        "parameters": {
+          "authentication": "privateKey",
+          "command": "=YTDLP=\"/home/linuxbrew/.linuxbrew/bin/yt-dlp\"\n  FFMPEG=\"/home/linuxbrew/.linuxbrew/opt/ffmpeg-full/bin/ffmpeg\"\n  FFPROBE=\"/home/linuxbrew/.linuxbrew/opt/ffmpeg-full/bin/ffprobe\"\n  OUTDIR=\"/mnt/qnap_multimedia/movies/movies\"\n  URL=\"{{ $json.query.url }}\"\n\n  # Timestamp marker before download\n  touch /tmp/yt_marker\n\n  # Download video + metadata + thumbnail\n  $YTDLP \\\n    --write-info-json \\\n    --write-thumbnail \\\n    --convert-thumbnails jpg \\\n    --embed-thumbnail \\\n    --add-metadata \\\n    -o \"$OUTDIR/%(uploader)s - %(title)s.%(ext)s\" \\\n    \"$URL\"\n\n  # Find the video file newer than our marker\n  FILEPATH=$(find \"$OUTDIR\" -maxdepth 1 -newer /tmp/yt_marker \\( -iname \"*.mp4\" -o -iname \"*.mkv\" -o -iname \"*.webm\" -o -iname \"*.mov\" \\) | head -1)\n\n  if [ -z \"$FILEPATH\" ]; then\n    echo \"Could not find downloaded file\"\n    exit 1\n  fi\n\n  echo \"Downloaded: $FILEPATH\"\n  BASENAME=\"${FILEPATH%.*}\"\n\n  # Get duration in seconds\n  DURATION=$($FFPROBE -v error -show_entries format=duration -of csv=p=0 \"$FILEPATH\" | cut -d. -f1)\n\n  # Extract 5 frames between 10% and 75%\n  MAX=$(( DURATION * 75 / 100 ))\n  MIN=$(( DURATION * 10 / 100 ))\n  STEP=$(( (MAX - MIN) / 4 ))\n\n  for i in 0 1 2 3 4; do\n    TS=$(( MIN + i * STEP ))\n    $FFMPEG -ss $TS -i \"$FILEPATH\" -vframes 1 -q:v 2 \"${BASENAME}-thumb$((i+1)).jpg\" -y 2>/dev/null\n    echo \"Saved thumb$((i+1)) at ${TS}s\"\n  done"
+        },
+        "type": "n8n-nodes-base.ssh",
+        "typeVersion": 1,
+        "position": [
+          464,
+          -320
+        ],
+        "id": "5ab02c57-9960-4dfb-953c-9d6adf205614",
+        "name": "download with thumbnails",
+        "executeOnce": false,
+        "credentials": {
+          "sshPrivateKey": {
+            "id": "ssr7RR2HiglJLW6v",
+            "name": "SSH Private Key"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "download with thumbnails",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "nodeGroups": [],
+    "authors": "Patricio Suarez",
+    "name": "Version 2d9f6d88",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": [],
+  "_fileName": "yt-dlp-movies.json",
+  "_currentSize": 6375,
+  "_githubSize": null,
+  "_changed": true,
+  "_isNew": true
+}
