@@ -1,0 +1,285 @@
+{
+  "updatedAt": "2026-04-02T10:52:16.059Z",
+  "createdAt": "2025-11-09T00:14:47.458Z",
+  "id": "Hi4TWciY65hMr79k",
+  "name": "Immich API Connect",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        -128
+      ],
+      "id": "8bf499cc-a320-4cd8-8c91-457e270b84ce",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const EMPTY_LABELS = [\"Faceless\", \"\", null];\n\nlet total = 0;\nlet named = 0;\nlet unnamed = 0;\n\nfor (const item of items) {\n  const person = item.json;\n  total++;\n\n  const n = (person.name || \"\").trim();\n\n  if (EMPTY_LABELS.includes(n) || n === \"\") {\n    unnamed++;\n  } else {\n    named++;\n  }\n}\n\nreturn [\n  {\n    json: {\n      total,\n      named,\n      unnamed,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        0
+      ],
+      "id": "49093388-ab44-4192-acb5-c5ef06ea4991",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "people",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "1523a673-ff15-4730-860f-afdf04420f32",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "people",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -224
+      ],
+      "id": "e21f1acf-3482-4800-9f51-e0b831f6fea9",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const EMPTY_LABELS = [\"Faceless\", \"\", null];\n\nlet total = 0;\nlet named = 0;\nlet unnamed = 0;\n\nfor (const item of items) {\n  const person = item.json;\n  total++;\n\n  const n = (person.name || \"\").trim();\n\n  if (EMPTY_LABELS.includes(n) || n === \"\") {\n    unnamed++;\n  } else {\n    named++;\n  }\n}\n\nreturn [\n  {\n    json: {\n      total,\n      named,\n      unnamed,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        -224
+      ],
+      "id": "5f5fa4df-13b8-4eee-b3f2-13dcf8831116",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "url": "http://10.0.30.20:2283/api/people",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "size",
+              "value": "1000"
+            }
+          ]
+        },
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "page",
+                    "value": "={{ $pageCount + 1 }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.hasNextPage }}"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "a3757f46-fd83-4459-b7be-6dc3244dd6ab",
+      "name": "Inspiration Immich",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kawekqDKg6wL1Vlj",
+          "name": "Immich API Inspiration"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://10.0.30.20:3000/api/people",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "size",
+              "value": "1000"
+            }
+          ]
+        },
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "page",
+                    "value": "={{ $pageCount + 1 }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.hasNextPage }}"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        -224
+      ],
+      "id": "cb1727d7-2b6e-4429-ae2c-a1c316c54a1b",
+      "name": "Family Immich",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "yADelxV7QvVsvkiT",
+          "name": "Immich API Family"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://10.0.30.20:2283/api/people",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Mary Mallow"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        -432
+      ],
+      "id": "e35f0877-33d6-4f4c-8bb7-50bc0749699b",
+      "name": "New Person in Inspiration",
+      "executeOnce": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kawekqDKg6wL1Vlj",
+          "name": "Immich API Inspiration"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Inspiration Immich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inspiration Immich": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Family Immich": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "f7b854e3-c71f-4e9d-bdcb-4c6c29b7b4a6",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2025-11-09T00:14:47.461Z",
+      "createdAt": "2025-11-09T00:14:47.461Z",
+      "role": "workflow:owner",
+      "workflowId": "Hi4TWciY65hMr79k",
+      "projectId": "cO5zu2AXDUFKk84O"
+    }
+  ],
+  "activeVersion": null,
+  "tags": [],
+  "_fileName": "immich-api-connect.json",
+  "_currentSize": 7193,
+  "_githubSize": null,
+  "_changed": true,
+  "_isNew": true
+}
