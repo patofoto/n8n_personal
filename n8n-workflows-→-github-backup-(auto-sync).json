@@ -1,0 +1,598 @@
+{
+  "updatedAt": "2026-06-08T10:51:35.499Z",
+  "createdAt": "2026-06-08T10:38:30.605Z",
+  "id": "Jm1e4fZTswKXvkSJ",
+  "name": "n8n Workflows → GitHub Backup (Auto-Sync)",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# 🗂️ n8n → GitHub sync Workflow versioning\n\n## What this does\nAutomatically backs up all your n8n workflows as JSON files to a GitHub repository on a schedule.\n\n## Features\n- ✅ Creates new files for new workflows\n- ✅ Updates existing files when workflows change\n- ✅ Deletes files for workflows that were renamed or removed\n- ✅ Skips unchanged workflows (size-based diff check)\n- ✅ Timestamped commit messages\n\n## Setup (one-time)\n1. **GitHub credential** — create a Personal Access Token with `repo` scope and add it as a GitHub credential in n8n\n2. **n8n API credential** — generate an n8n API key under *Settings → API* and add it as an n8n credential\n3. **GitHub repo** — create an empty repository on GitHub (e.g. `your-username/n8n-backup`)\n4. Update all GitHub nodes: set your **owner** (GitHub username) and **repository** name\n5. Adjust the **Schedule Trigger** to your preferred backup interval (default: every hour)\n\n## Notes\n- Workflow files are named using the workflow name, lowercased and hyphenated (e.g. `my-workflow.json`)\n- The repo at the top of the canvas links to a working example\n\nContact us if you have any suggestions or need support for this workflow: support@ucartz.com",
+        "height": 700,
+        "width": 820,
+        "color": 7
+      },
+      "id": "d24b7c0a-6e93-41aa-aced-3611053a8710",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1040,
+        16
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### 📥 Step 1 — Fetch current GitHub repo contents\nLists all files already in the GitHub backup repository.\nThis is used later to:\n- Detect which workflows are new vs existing\n- Identify files to delete (renamed/removed workflows)",
+        "height": 268,
+        "width": 532,
+        "color": "#FFFFFF"
+      },
+      "id": "daf31694-2d13-4f2e-a49d-337262a6f461",
+      "name": "Sticky Note — Fetch GitHub Files",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### ⚙️ Step 2 — Fetch & filter n8n workflows\nRetrieves all workflows from this n8n instance via API.\n\nThe **Filter Changed Files** node compares each workflow's byte size against the file size stored on GitHub. Only workflows that are **new or modified** pass through — skipping unchanged ones avoids unnecessary GitHub commits.",
+        "height": 268,
+        "width": 820,
+        "color": "#FFFFFF"
+      },
+      "id": "b94d3fa6-84b1-49d4-b97f-8c04cc7bd707",
+      "name": "Sticky Note — Fetch & Filter Workflows",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### 💾 Step 3 — Commit files to GitHub\nFor each changed workflow:\n1. Build the target filename and commit timestamp\n2. Check if the file already exists in the repo\n3. **Update** it (edit) if it exists, or **Create** it (upload) if it's new\n\nFiles are named: `workflow-name.json` (lowercase, hyphenated)",
+        "height": 300,
+        "width": 700,
+        "color": "#F2F2F2"
+      },
+      "id": "415c04ac-123e-4f9d-9ddd-9d4cf1a26b6d",
+      "name": "Sticky Note — Commit to GitHub",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        384
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### 🗑️ Step 4 — Clean up deleted/renamed workflows\nAfter committing, compare:\n- **GitHub files** (what's in the repo)\n- **n8n workflows** (what currently exists)\n\nAny GitHub file with **no matching n8n workflow** means the workflow was renamed or deleted — those files are removed from the repo automatically.\n\n⚠️ Safety: if n8n returns 0 workflows (e.g. API error), the deletion step is aborted to prevent wiping the entire repo.",
+        "height": 304,
+        "width": 824,
+        "color": "#FFFFFF"
+      },
+      "id": "d5a7b671-7594-47ed-8126-f02012cb738a",
+      "name": "Sticky Note — Cleanup Deleted Workflows",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        384
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "a018b174-21b7-487d-8bb3-1b2cf14bac0b",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -176,
+        176
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "list",
+        "owner": {
+          "__rl": true,
+          "value": "patofoto",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "n8n_personal",
+          "mode": "list",
+          "cachedResultName": "n8n_personal",
+          "cachedResultUrl": "https://github.com/patofoto/n8n_personal"
+        },
+        "filePath": "="
+      },
+      "id": "67a1bb9d-61fd-45bb-8618-63f51cc5d5b2",
+      "name": "List Files in GitHub Repo",
+      "type": "n8n-nodes-base.github",
+      "position": [
+        96,
+        176
+      ],
+      "webhookId": "6c5a413f-1a30-4ca9-8174-46e02f3ecf22",
+      "typeVersion": 1,
+      "alwaysOutputData": true,
+      "credentials": {
+        "githubApi": {
+          "id": "Sl1GTxPJo59Dzsp1",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "name"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3d89366e-c893-43a8-bb81-7e99e4fcc63f",
+      "name": "Collect GitHub Filenames",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        272,
+        176
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "filters": {},
+        "requestOptions": {}
+      },
+      "id": "e69f0537-6920-4dc5-82ea-c023803c9ef5",
+      "name": "Fetch All n8n Workflows",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        656,
+        176
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "n8nApi": {
+          "id": "kzrIBdXcYphvlRVI",
+          "name": "n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compare each workflow's current size with its GitHub file size.\n// Only workflows that are NEW or have CHANGED content pass through.\n// This avoids creating unnecessary commits for unmodified workflows.\n\nconst githubFileMap = {};\n$('List Files in GitHub Repo').all().forEach(i => {\n  if (i.json.name) {\n    githubFileMap[i.json.name] = i.json.size;\n  }\n});\n\nconst results = $input.all().map(item => {\n  const workflowJson = JSON.stringify(item.json, null, 2);\n  const fileName = item.json.name.replace(/\\s+/g, '-').toLowerCase() + '.json';\n\n  const currentSize = Buffer.byteLength(workflowJson, 'utf8');\n  const githubSize = githubFileMap[fileName];\n\n  const isNew = githubSize === undefined;\n  const changed = isNew || currentSize !== githubSize;\n\n  return {\n    json: {\n      ...item.json,\n      _fileName: fileName,\n      _currentSize: currentSize,\n      _githubSize: githubSize ?? null,\n      _changed: changed,\n      _isNew: isNew\n    },\n    pairedItem: item.pairedItem\n  };\n});\n\n// Only return workflows that need to be committed\nreturn results.filter(r => r.json._changed || r.json._isNew);"
+      },
+      "id": "899a1191-7cb2-43b9-a918-6c5607ea369c",
+      "name": "Filter Changed/New Workflows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        848,
+        176
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "mode": "each",
+        "options": {
+          "format": true
+        }
+      },
+      "id": "ba51e25d-33a5-4db1-8aba-863960f0853c",
+      "name": "Convert Workflow to JSON File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        1024,
+        176
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "id": "92273258-dfc0-40eb-8539-9290d3f136f9",
+      "name": "Encode as Base64",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1216,
+        176
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fe4a36ef-9f04-40e3-99bd-cc517a49b440",
+              "name": "commitDate",
+              "type": "string",
+              "value": "={{ $now.format('dd-MM-yyyy/H:mm') }}"
+            },
+            {
+              "id": "b0fe1bcc-e79c-4a6b-b8b4-44222c8bf4e8",
+              "name": "fileName",
+              "type": "string",
+              "value": "={{ $('Fetch All n8n Workflows').item.json.name.replace(/\\s+/g, '-').toLowerCase() }}.json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7d5cb01b-66ea-4f96-8bb8-eff5aac6bda5",
+      "name": "Build Filename & Commit Date",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -144,
+        592
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Collect GitHub Filenames').item.json.name }}",
+              "operation": "contains",
+              "value2": "={{ $('Fetch All n8n Workflows').item.json.name.replace(/\\s+/g, '-').toLowerCase() }}.json"
+            }
+          ]
+        }
+      },
+      "id": "ec137638-1716-4d8a-b158-5fd411413286",
+      "name": "File Already Exists in Repo?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        32,
+        592
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "patofoto",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "n8n_personal",
+          "mode": "list",
+          "cachedResultName": "n8n_personal",
+          "cachedResultUrl": "https://github.com/patofoto/n8n_personal"
+        },
+        "filePath": "={{ $('Fetch All n8n Workflows').item.json.name.replace(/\\s+/g, '-').toLowerCase() }}.json",
+        "fileContent": "={{ $('Encode as Base64').item.json.data }}",
+        "commitMessage": "=Sync-{{ $('Build Filename & Commit Date').item.json.commitDate }}"
+      },
+      "id": "8c5feded-8042-46b5-82c0-88f48c7f09d4",
+      "name": "Update Existing File",
+      "type": "n8n-nodes-base.github",
+      "position": [
+        432,
+        592
+      ],
+      "webhookId": "b877ef15-f96f-457b-8cac-5107a6b0f40f",
+      "typeVersion": 1,
+      "credentials": {
+        "githubApi": {
+          "id": "Sl1GTxPJo59Dzsp1",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "patofoto",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "n8n_personal",
+          "mode": "list",
+          "cachedResultName": "n8n_personal",
+          "cachedResultUrl": "https://github.com/patofoto/n8n_personal"
+        },
+        "filePath": "={{ $('Fetch All n8n Workflows').item.json.name.replace(/\\s+/g, '-').toLowerCase() }}.json",
+        "fileContent": "={{ $('Encode as Base64').item.json.data }}",
+        "commitMessage": "=Sync-{{ $('Build Filename & Commit Date').item.json.commitDate }}"
+      },
+      "id": "5569b57c-2584-4b01-81e6-0dba442fe215",
+      "name": "Create New File",
+      "type": "n8n-nodes-base.github",
+      "position": [
+        240,
+        592
+      ],
+      "webhookId": "207cadf0-dfdd-41d3-be32-806b7dfac41c",
+      "typeVersion": 1,
+      "credentials": {
+        "githubApi": {
+          "id": "Sl1GTxPJo59Dzsp1",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Find GitHub files that no longer have a matching n8n workflow.\n// These are workflows that were renamed or deleted in n8n.\n// Safety: if n8n returned 0 workflows, abort to avoid mass deletion.\n\nconst githubFiles = $('List Files in GitHub Repo').all()\n  .map(i => i.json.name)\n  .filter(Boolean);\n\nconst n8nWorkflowFiles = $('Fetch All n8n Workflows').all().map(i => {\n  return i.json.name.replace(/\\s+/g, '-').toLowerCase() + '.json';\n});\n\nif (n8nWorkflowFiles.length === 0) {\n  throw new Error('Safety abort: n8n returned 0 workflows. Refusing to delete any GitHub files.');\n}\n\nif (githubFiles.length === 0) {\n  return [{ json: { skipped: true, reason: 'GitHub repo is empty — nothing to delete.' } }];\n}\n\nconst filesToDelete = githubFiles.filter(f => !n8nWorkflowFiles.includes(f));\n\nif (filesToDelete.length === 0) {\n  return [{ json: { skipped: true, reason: 'All GitHub files match existing workflows. Nothing to delete.' } }];\n}\n\nreturn filesToDelete.map(f => ({ json: { path: f, skipped: false } }));"
+      },
+      "id": "e72f5ded-6e77-4105-9d69-91b4c0a4b421",
+      "name": "Find Orphaned Files to Delete",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        720,
+        592
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.skipped }}"
+            }
+          ]
+        }
+      },
+      "id": "a5684840-02ad-49df-908c-c34eaedcaa85",
+      "name": "Any Files to Delete?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        912,
+        592
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "delete",
+        "owner": {
+          "__rl": true,
+          "value": "patofoto",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "n8n_personal",
+          "mode": "list",
+          "cachedResultName": "n8n_personal",
+          "cachedResultUrl": "https://github.com/patofoto/n8n_personal"
+        },
+        "filePath": "={{ $json.path }}",
+        "commitMessage": "=chore: remove deleted workflow {{ $json.path }}"
+      },
+      "id": "0b3f9865-d99c-4434-837b-c1b55c2c3a97",
+      "name": "Delete Orphaned File",
+      "type": "n8n-nodes-base.github",
+      "position": [
+        1184,
+        592
+      ],
+      "webhookId": "4c9b3fa2-1af8-4243-85eb-83aa9d7b4ffe",
+      "typeVersion": 1.1,
+      "credentials": {
+        "githubApi": {
+          "id": "Sl1GTxPJo59Dzsp1",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 🔧 Configuration Required — GitHub Username\n\nSearch for all GitHub nodes in this workflow (List Files in GitHub Repo, Create New File, Update Existing File, Delete Orphaned File) and replace the owner field value YOUR_GITHUB_USERNAME with your actual GitHub username. The same username should also be reflected in the repository URL of each node.",
+        "height": 272,
+        "width": 320
+      },
+      "id": "22f60d2b-97bb-41c9-b244-cf9c54055c57",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1424,
+        0
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Encode as Base64": {
+      "main": [
+        [
+          {
+            "node": "Build Filename & Commit Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "List Files in GitHub Repo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any Files to Delete?": {
+      "main": [
+        [
+          {
+            "node": "Delete Orphaned File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Existing File": {
+      "main": [
+        [
+          {
+            "node": "Find Orphaned Files to Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All n8n Workflows": {
+      "main": [
+        [
+          {
+            "node": "Filter Changed/New Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect GitHub Filenames": {
+      "main": [
+        [
+          {
+            "node": "Fetch All n8n Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Files in GitHub Repo": {
+      "main": [
+        [
+          {
+            "node": "Collect GitHub Filenames",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Filename & Commit Date": {
+      "main": [
+        [
+          {
+            "node": "File Already Exists in Repo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Already Exists in Repo?": {
+      "main": [
+        [
+          {
+            "node": "Update Existing File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create New File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Changed/New Workflows": {
+      "main": [
+        [
+          {
+            "node": "Convert Workflow to JSON File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Workflow to JSON File": {
+      "main": [
+        [
+          {
+            "node": "Encode as Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Orphaned Files to Delete": {
+      "main": [
+        [
+          {
+            "node": "Any Files to Delete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "7492940c-fbde-45c5-aa7c-0434d62c9def",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-08T10:38:30.609Z",
+      "createdAt": "2026-06-08T10:38:30.609Z",
+      "role": "workflow:owner",
+      "workflowId": "Jm1e4fZTswKXvkSJ",
+      "projectId": "cO5zu2AXDUFKk84O"
+    }
+  ],
+  "activeVersion": null,
+  "tags": [],
+  "_fileName": "n8n-workflows-→-github-backup-(auto-sync).json",
+  "_currentSize": 19030,
+  "_githubSize": null,
+  "_changed": true,
+  "_isNew": true
+}
