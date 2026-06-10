@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-02T10:52:16.059Z",
+  "updatedAt": "2026-06-09T02:29:09.350Z",
   "createdAt": "2025-11-09T00:14:47.458Z",
   "id": "Hi4TWciY65hMr79k",
   "name": "Immich API Connect",
@@ -279,7 +279,7 @@
   "tags": [],
   "_fileName": "immich-api-connect.json",
   "_currentSize": 7193,
-  "_githubSize": null,
+  "_githubSize": 7320,
   "_changed": true,
-  "_isNew": true
+  "_isNew": false
 }
