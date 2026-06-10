@@ -1,0 +1,157 @@
+{
+  "updatedAt": "2026-06-09T02:29:16.019Z",
+  "createdAt": "2026-06-09T02:24:18.266Z",
+  "id": "UCKxVqScAHTSWXVL",
+  "name": "Postgres Tests",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Postgres Queries",
+        "height": 688,
+        "width": 560
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        -272
+      ],
+      "id": "a0fba128-1dd8-486c-9b6d-3621e5729990",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH faces AS (\n  SELECT\n    af.id,\n    af.\"personId\",\n    NULLIF(TRIM(p.name), '') AS person_name,\n    CASE\n      WHEN af.\"personId\" IS NULL THEN 'no_person_recognized'\n      WHEN NULLIF(TRIM(p.name), '') IS NULL THEN 'person_unlabeled'\n      ELSE 'person_named'\n    END AS state\n  FROM asset_face af\n  LEFT JOIN person p ON p.id = af.\"personId\"\n)\n\nSELECT\n  label,\n  face_count\nFROM (\n  -- State counts (faces)\n  SELECT\n    state AS label,\n    COUNT(*) AS face_count\n  FROM faces\n  GROUP BY state\n\n  UNION ALL\n\n  -- Name counts (faces per person)\n  SELECT\n    person_name AS label,\n    COUNT(*) AS face_count\n  FROM faces\n  WHERE person_name IS NOT NULL\n  GROUP BY person_name\n\n  UNION ALL\n\n  -- ✅ Total distinct recognized people\n  SELECT\n    'recognized_people_total' AS label,\n    COUNT(DISTINCT \"personId\") AS face_count\n  FROM faces\n  WHERE person_name IS NOT NULL\n) combined\nORDER BY\n  face_count DESC,\n  label;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -144,
+        240
+      ],
+      "id": "43218f9b-0b35-4f64-9d77-cdf8d2a56b7f",
+      "name": "People Count",
+      "credentials": {
+        "postgres": {
+          "id": "iCHwiGkAcxUxHf4K",
+          "name": "Immich Inspiration Postgres Database"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  table_name,\n  json_agg(\n    json_build_object(\n      'name', column_name,\n      'type', data_type\n    )\n    ORDER BY ordinal_position\n  ) AS columns\nFROM information_schema.columns\nWHERE table_schema = 'public'\nGROUP BY table_name\nORDER BY table_name;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -288,
+        -176
+      ],
+      "id": "25528989-70f3-4585-bfee-2063575ffa97",
+      "name": "all tables + columns per table",
+      "credentials": {
+        "postgres": {
+          "id": "iCHwiGkAcxUxHf4K",
+          "name": "Immich Inspiration Postgres Database"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  a.id,\n  a.\"originalFileName\",\n  a.\"createdAt\"         AS imported_at,\n  a.\"fileCreatedAt\",\n  a.\"localDateTime\"     AS timeline_date,\n  ex.\"dateTimeOriginal\" AS exif_original_date,\n  ex.\"modifyDate\"       AS exif_modify_date,\n  ex.\"timeZone\"         AS exif_time_zone\nFROM asset a\nLEFT JOIN asset_exif ex\n  ON ex.\"assetId\" = a.id\nORDER BY a.\"createdAt\" DESC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -288,
+        32
+      ],
+      "id": "0bbc6769-97a7-44f0-8eff-9d29d231fd81",
+      "name": "Important Dates to Study",
+      "credentials": {
+        "postgres": {
+          "id": "iCHwiGkAcxUxHf4K",
+          "name": "Immich Inspiration Postgres Database"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  a.id,\n  a.\"originalFileName\",\n  a.\"createdAt\"         AS imported_at,\n  a.\"localDateTime\"     AS timeline_date,\n  ex.\"dateTimeOriginal\" AS exif_original_date,\n\n  -- mismatch metrics (NULL if timeline_date is NULL)\n  (a.\"createdAt\" - a.\"localDateTime\") AS time_difference,\n  ABS(EXTRACT(EPOCH FROM (a.\"createdAt\" - a.\"localDateTime\"))) AS diff_seconds,\n  ROUND(ABS(EXTRACT(EPOCH FROM (a.\"createdAt\" - a.\"localDateTime\"))) / 3600, 2)  AS diff_hours,\n  ROUND(ABS(EXTRACT(EPOCH FROM (a.\"createdAt\" - a.\"localDateTime\"))) / 86400, 2) AS diff_days,\n\n  -- helpful label\n  CASE\n    WHEN a.\"localDateTime\" IS NULL THEN 'no_timeline_date'\n    WHEN ex.\"dateTimeOriginal\" IS NULL THEN 'no_exif'\n    ELSE 'exif_present'\n  END AS exif_status\n\nFROM asset a\nLEFT JOIN asset_exif ex\n  ON ex.\"assetId\" = a.id\n\nORDER BY\n  (a.\"localDateTime\" IS NULL) ASC,   -- puts NULL timeline_date last\n  diff_seconds DESC NULLS LAST;      -- biggest mismatch first",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -48,
+        32
+      ],
+      "id": "6468118e-662c-4c02-a506-1bd0c3110d64",
+      "name": "EXIF Date Difference from Timeline",
+      "credentials": {
+        "postgres": {
+          "id": "iCHwiGkAcxUxHf4K",
+          "name": "Immich Inspiration Postgres Database"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  a.\"originalFileName\",\n  a.\"createdAt\"     AS imported_at,\n  a.\"localDateTime\" AS timeline_date\nFROM asset a\nWHERE\n  a.\"createdAt\" >= date_trunc('day', now())\nORDER BY\n  a.\"createdAt\" DESC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -32,
+        -176
+      ],
+      "id": "e3884f1d-76e9-4c3f-9779-3e6315504d41",
+      "name": "Images Imported Today",
+      "credentials": {
+        "postgres": {
+          "id": "iCHwiGkAcxUxHf4K",
+          "name": "Immich Inspiration Postgres Database"
+        }
+      }
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "e2b47224-de2f-4e14-88ad-63bd9b8e28a8",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-06-09T02:24:18.270Z",
+      "createdAt": "2026-06-09T02:24:18.270Z",
+      "role": "workflow:owner",
+      "workflowId": "UCKxVqScAHTSWXVL",
+      "projectId": "cO5zu2AXDUFKk84O"
+    }
+  ],
+  "activeVersion": null,
+  "tags": [],
+  "_fileName": "postgres-tests.json",
+  "_currentSize": 6402,
+  "_githubSize": null,
+  "_changed": true,
+  "_isNew": true
+}
