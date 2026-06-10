@@ -1,0 +1,609 @@
+{
+  "updatedAt": "2026-06-09T02:27:18.483Z",
+  "createdAt": "2025-12-12T00:38:11.905Z",
+  "id": "uOl2oHbYBnkCONin",
+  "name": "Immich Inspo External Drive Scan",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "DIR=\"/media/pato/Media_HD/Inspiration Board\"\n\nfind \"$DIR\" -maxdepth 1 -type f -iname \"*.pnj\" -print0 \\\n| xargs -0 file \\\n| grep \"JPEG image data\" \\\n| cut -d: -f1 \\\n| while read -r f; do\n    mv -n \"$f\" \"${f%.*}.jpg\"\n  done"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        -2912,
+        -800
+      ],
+      "id": "89487a0a-5e90-4857-9fc2-82980f6c2c7e",
+      "name": "Correct .pnj to .jpeg",
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "ssr7RR2HiglJLW6v",
+          "name": "SSH Private Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "DIR=\"/media/pato/Media_HD/Inspiration Board\"\n\nfind \"$DIR\" -maxdepth 1 -type f -iname \"*.pnj\" -print0 \\\n| xargs -0 file \\\n| grep \"PNG image data\" \\\n| cut -d: -f1 \\\n| while read -r f; do\n    mv -n \"$f\" \"${f%.*}.png\"\n  done"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        -2672,
+        -800
+      ],
+      "id": "dc74f6b8-ec91-4d38-a6b3-05b8b80d0fcc",
+      "name": "Correct .pnj to .png",
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "ssr7RR2HiglJLW6v",
+          "name": "SSH Private Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "DIR=\"/media/pato/Media_HD/Inspiration Board\"\n\nfind \"$DIR\" -maxdepth 1 -type f -iname \"*.php\" -print0 \\\n| xargs -0 file \\\n| grep \"JPEG image data\" \\\n| cut -d: -f1 \\\n| while read -r f; do\n    mv -n \"$f\" \"${f%.*}.jpg\"\n  done"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        -2432,
+        -800
+      ],
+      "id": "46f1cfe3-bc84-4f01-bedd-4ef2762ca953",
+      "name": "Correct .pnj to .jpeg1",
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "ssr7RR2HiglJLW6v",
+          "name": "SSH Private Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://10.0.30.20:2283/api/libraries/e08930c9-b834-4120-890e-08e6bf670f14/scan",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "refreshModifiedFiles",
+              "value": "true"
+            },
+            {
+              "name": "refreshAllFiles",
+              "value": "false"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2224,
+        -800
+      ],
+      "id": "87f06d6a-0f12-4e19-8aeb-027cc8109965",
+      "name": "Inspiration Board External Library Rescan",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kawekqDKg6wL1Vlj",
+          "name": "Immich API Inspiration"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "8981cd94-b370-4e5e-a019-2f4edd1a6327",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3136,
+        -800
+      ],
+      "id": "f0d4967f-c57c-4fbd-ac4d-7709f98e8f19",
+      "name": "Webhook",
+      "webhookId": "8981cd94-b370-4e5e-a019-2f4edd1a6327"
+    }
+  ],
+  "connections": {
+    "Correct .pnj to .jpeg": {
+      "main": [
+        [
+          {
+            "node": "Correct .pnj to .png",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Correct .pnj to .png": {
+      "main": [
+        [
+          {
+            "node": "Correct .pnj to .jpeg1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Correct .pnj to .jpeg1": {
+      "main": [
+        [
+          {
+            "node": "Inspiration Board External Library Rescan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Correct .pnj to .jpeg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "a839d295-dca5-4b67-bfcb-40e5131cf7ad",
+  "activeVersionId": "c3f55596-8ef9-4c88-97b6-1b5e653a11bc",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2025-12-12T00:38:11.908Z",
+      "createdAt": "2025-12-12T00:38:11.908Z",
+      "role": "workflow:owner",
+      "workflowId": "uOl2oHbYBnkCONin",
+      "projectId": "cO5zu2AXDUFKk84O"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-06-07T02:30:21.000Z",
+    "createdAt": "2026-04-16T10:55:08.459Z",
+    "versionId": "c3f55596-8ef9-4c88-97b6-1b5e653a11bc",
+    "workflowId": "uOl2oHbYBnkCONin",
+    "nodes": [
+      {
+        "parameters": {
+          "content": "## Postgres Queries",
+          "height": 688,
+          "width": 560
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -3952,
+          -1008
+        ],
+        "id": "8fe56195-34b1-4ab7-b862-e61ffacd0e2a",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH faces AS (\n  SELECT\n    af.id,\n    af.\"personId\",\n    NULLIF(TRIM(p.name), '') AS person_name,\n    CASE\n      WHEN af.\"personId\" IS NULL THEN 'no_person_recognized'\n      WHEN NULLIF(TRIM(p.name), '') IS NULL THEN 'person_unlabeled'\n      ELSE 'person_named'\n    END AS state\n  FROM asset_face af\n  LEFT JOIN person p ON p.id = af.\"personId\"\n)\n\nSELECT\n  label,\n  face_count\nFROM (\n  -- State counts (faces)\n  SELECT\n    state AS label,\n    COUNT(*) AS face_count\n  FROM faces\n  GROUP BY state\n\n  UNION ALL\n\n  -- Name counts (faces per person)\n  SELECT\n    person_name AS label,\n    COUNT(*) AS face_count\n  FROM faces\n  WHERE person_name IS NOT NULL\n  GROUP BY person_name\n\n  UNION ALL\n\n  -- ✅ Total distinct recognized people\n  SELECT\n    'recognized_people_total' AS label,\n    COUNT(DISTINCT \"personId\") AS face_count\n  FROM faces\n  WHERE person_name IS NOT NULL\n) combined\nORDER BY\n  face_count DESC,\n  label;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -3888,
+          -512
+        ],
+        "id": "8e8104d0-285f-4a26-8658-e41715c6c2b3",
+        "name": "People Count",
+        "credentials": {
+          "postgres": {
+            "id": "iCHwiGkAcxUxHf4K",
+            "name": "Immich Inspiration Postgres Database"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT\n  table_name,\n  json_agg(\n    json_build_object(\n      'name', column_name,\n      'type', data_type\n    )\n    ORDER BY ordinal_position\n  ) AS columns\nFROM information_schema.columns\nWHERE table_schema = 'public'\nGROUP BY table_name\nORDER BY table_name;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -3888,
+          -912
+        ],
+        "id": "2b36ba09-c96f-4e10-909f-a0a5ce5201c4",
+        "name": "all tables + columns per table",
+        "credentials": {
+          "postgres": {
+            "id": "iCHwiGkAcxUxHf4K",
+            "name": "Immich Inspiration Postgres Database"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT\n  a.id,\n  a.\"originalFileName\",\n  a.\"createdAt\"         AS imported_at,\n  a.\"fileCreatedAt\",\n  a.\"localDateTime\"     AS timeline_date,\n  ex.\"dateTimeOriginal\" AS exif_original_date,\n  ex.\"modifyDate\"       AS exif_modify_date,\n  ex.\"timeZone\"         AS exif_time_zone\nFROM asset a\nLEFT JOIN asset_exif ex\n  ON ex.\"assetId\" = a.id\nORDER BY a.\"createdAt\" DESC;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -3888,
+          -704
+        ],
+        "id": "58144069-acdc-41e1-ac18-a0a1acf1478b",
+        "name": "Important Dates to Study",
+        "credentials": {
+          "postgres": {
+            "id": "iCHwiGkAcxUxHf4K",
+            "name": "Immich Inspiration Postgres Database"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT\n  a.id,\n  a.\"originalFileName\",\n  a.\"createdAt\"         AS imported_at,\n  a.\"localDateTime\"     AS timeline_date,\n  ex.\"dateTimeOriginal\" AS exif_original_date,\n\n  -- mismatch metrics (NULL if timeline_date is NULL)\n  (a.\"createdAt\" - a.\"localDateTime\") AS time_difference,\n  ABS(EXTRACT(EPOCH FROM (a.\"createdAt\" - a.\"localDateTime\"))) AS diff_seconds,\n  ROUND(ABS(EXTRACT(EPOCH FROM (a.\"createdAt\" - a.\"localDateTime\"))) / 3600, 2)  AS diff_hours,\n  ROUND(ABS(EXTRACT(EPOCH FROM (a.\"createdAt\" - a.\"localDateTime\"))) / 86400, 2) AS diff_days,\n\n  -- helpful label\n  CASE\n    WHEN a.\"localDateTime\" IS NULL THEN 'no_timeline_date'\n    WHEN ex.\"dateTimeOriginal\" IS NULL THEN 'no_exif'\n    ELSE 'exif_present'\n  END AS exif_status\n\nFROM asset a\nLEFT JOIN asset_exif ex\n  ON ex.\"assetId\" = a.id\n\nORDER BY\n  (a.\"localDateTime\" IS NULL) ASC,   -- puts NULL timeline_date last\n  diff_seconds DESC NULLS LAST;      -- biggest mismatch first",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -3648,
+          -704
+        ],
+        "id": "0448d635-7c6a-4abf-8335-3db9b34d8878",
+        "name": "EXIF Date Difference from Timeline",
+        "credentials": {
+          "postgres": {
+            "id": "iCHwiGkAcxUxHf4K",
+            "name": "Immich Inspiration Postgres Database"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -3264,
+          -1280
+        ],
+        "id": "815b75bb-a627-4f15-b91f-bb203df75d94",
+        "name": "When clicking ‘Execute workflow’"
+      },
+      {
+        "parameters": {
+          "content": "## ExifTool use via SSH",
+          "height": 304,
+          "width": 528
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -3936,
+          -1344
+        ],
+        "typeVersion": 1,
+        "id": "1d21267d-e9ac-4f47-a0a8-2d6dc69f6cfb",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "authentication": "privateKey",
+          "command": "OFFSET=0\nLIMIT=500\nDIR=\"/media/pato/Media_HD/Inspiration Board\"\nEXIF=\"/home/linuxbrew/.linuxbrew/bin/exiftool\"\n\nLIST=\"$(mktemp)\"\nfind \"$DIR\" -maxdepth 1 -type f \\( -iname \"*.jpg\" -o -iname \"*.jpeg\" -o -iname \"*.png\" -o -iname \"*.heic\" \\) \\\n  | sort \\\n  | sed -n \"$((OFFSET+1)),$((OFFSET+LIMIT))p\" > \"$LIST\"\n\n\"$EXIF\" -q -q -api MissingTagValue=\"\" -json -d \"%Y-%m-%dT%H:%M:%S\" \\\n  -SourceFile -FileType -MIMEType -FileSize -ImageWidth -ImageHeight \\\n  -DateTimeOriginal -CreateDate -ModifyDate -FileModifyDate \\\n  -@ \"$LIST\""
+        },
+        "type": "n8n-nodes-base.ssh",
+        "typeVersion": 1,
+        "position": [
+          -3856,
+          -1232
+        ],
+        "id": "ae38763b-9c07-43f2-8546-c9ec3bd3fdb4",
+        "name": "Execute a command",
+        "credentials": {
+          "sshPrivateKey": {
+            "id": "ssr7RR2HiglJLW6v",
+            "name": "SSH Private Key"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// SSH node output is one item like: { code, stdout, stderr }\nconst out = items[0].json.stdout;\n\n// stdout is a JSON string (exiftool -json). Parse it.\nconst arr = JSON.parse(out);\n\n// return one n8n item per file (best for downstream processing)\nreturn arr.map(o => ({\n  json: {\n    ...o,\n    best_date: o.DateTimeOriginal || o.CreateDate || o.ModifyDate || o.FileModifyDate,\n    best_date_source: o.DateTimeOriginal ? \"DateTimeOriginal\"\n      : o.CreateDate ? \"CreateDate\"\n      : o.ModifyDate ? \"ModifyDate\"\n      : \"FileModifyDate\",\n  }\n}));"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -3600,
+          -1232
+        ],
+        "id": "18bf2e41-b31c-4336-94e9-f2f909ae1317",
+        "name": "Code in JavaScript"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT\n  a.\"originalFileName\",\n  a.\"createdAt\"     AS imported_at,\n  a.\"localDateTime\" AS timeline_date\nFROM asset a\nWHERE\n  a.\"createdAt\" >= date_trunc('day', now())\nORDER BY\n  a.\"createdAt\" DESC;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -3632,
+          -912
+        ],
+        "id": "9bef6e2e-bf01-4211-8d7d-b15daa968815",
+        "name": "Images Imported Today",
+        "credentials": {
+          "postgres": {
+            "id": "iCHwiGkAcxUxHf4K",
+            "name": "Immich Inspiration Postgres Database"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const lines = $json.stdout.trim().split('\\n');\nreturn lines.map(line => ({ line }));"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -2896,
+          -1280
+        ],
+        "id": "84357506-dfe9-4f3f-a4af-d54fde63ffce",
+        "name": "Code in JavaScript1"
+      },
+      {
+        "parameters": {
+          "authentication": "privateKey",
+          "command": "DIR=\"/media/pato/Media_HD/Inspiration Board\"\n\nprintf \"%-8s %-10s\\n\" \"COUNT\" \"EXTENSION\"\nprintf \"%-8s %-10s\\n\" \"--------\" \"----------\"\n\nfind \"$DIR\" -maxdepth 1 -type f \\\n  | sed -E 's/.*\\.([^.]+)$/\\1/' \\\n  | tr '[:upper:]' '[:lower:]' \\\n  | sort | uniq -c | sort -nr \\\n  | awk '{ printf \"%-8d %-10s\\n\", $1, $2 }'"
+        },
+        "type": "n8n-nodes-base.ssh",
+        "typeVersion": 1,
+        "position": [
+          -3072,
+          -1280
+        ],
+        "id": "3acf9d27-00da-47cc-a5ae-e26101c6817e",
+        "name": "Find File Types",
+        "credentials": {
+          "sshPrivateKey": {
+            "id": "ssr7RR2HiglJLW6v",
+            "name": "SSH Private Key"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "privateKey",
+          "command": "DIR=\"/media/pato/Media_HD/Inspiration Board\"\n\nfind \"$DIR\" -maxdepth 1 -type f -iname \"*.pnj\" -print0 \\\n| xargs -0 file \\\n| grep \"JPEG image data\" \\\n| cut -d: -f1 \\\n| while read -r f; do\n    mv -n \"$f\" \"${f%.*}.jpg\"\n  done"
+        },
+        "type": "n8n-nodes-base.ssh",
+        "typeVersion": 1,
+        "position": [
+          -2912,
+          -800
+        ],
+        "id": "89487a0a-5e90-4857-9fc2-82980f6c2c7e",
+        "name": "Correct .pnj to .jpeg",
+        "credentials": {
+          "sshPrivateKey": {
+            "id": "ssr7RR2HiglJLW6v",
+            "name": "SSH Private Key"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "privateKey",
+          "command": "DIR=\"/media/pato/Media_HD/Inspiration Board\"\n\nfind \"$DIR\" -maxdepth 1 -type f -iname \"*.pnj\" -print0 \\\n| xargs -0 file \\\n| grep \"PNG image data\" \\\n| cut -d: -f1 \\\n| while read -r f; do\n    mv -n \"$f\" \"${f%.*}.png\"\n  done"
+        },
+        "type": "n8n-nodes-base.ssh",
+        "typeVersion": 1,
+        "position": [
+          -2672,
+          -800
+        ],
+        "id": "dc74f6b8-ec91-4d38-a6b3-05b8b80d0fcc",
+        "name": "Correct .pnj to .png",
+        "credentials": {
+          "sshPrivateKey": {
+            "id": "ssr7RR2HiglJLW6v",
+            "name": "SSH Private Key"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "privateKey",
+          "command": "DIR=\"/media/pato/Media_HD/Inspiration Board\"\n\nfind \"$DIR\" -maxdepth 1 -type f -iname \"*.php\" -print0 \\\n| xargs -0 file \\\n| grep \"JPEG image data\" \\\n| cut -d: -f1 \\\n| while read -r f; do\n    mv -n \"$f\" \"${f%.*}.jpg\"\n  done"
+        },
+        "type": "n8n-nodes-base.ssh",
+        "typeVersion": 1,
+        "position": [
+          -2432,
+          -800
+        ],
+        "id": "46f1cfe3-bc84-4f01-bedd-4ef2762ca953",
+        "name": "Correct .pnj to .jpeg1",
+        "credentials": {
+          "sshPrivateKey": {
+            "id": "ssr7RR2HiglJLW6v",
+            "name": "SSH Private Key"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://10.0.30.20:2283/api/libraries/e08930c9-b834-4120-890e-08e6bf670f14/scan",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "refreshModifiedFiles",
+                "value": "true"
+              },
+              {
+                "name": "refreshAllFiles",
+                "value": "false"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -2224,
+          -800
+        ],
+        "id": "87f06d6a-0f12-4e19-8aeb-027cc8109965",
+        "name": "Inspiration Board External Library Rescan",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "kawekqDKg6wL1Vlj",
+            "name": "Immich API Inspiration"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "path": "8981cd94-b370-4e5e-a019-2f4edd1a6327",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -3136,
+          -800
+        ],
+        "id": "f0d4967f-c57c-4fbd-ac4d-7709f98e8f19",
+        "name": "Webhook",
+        "webhookId": "8981cd94-b370-4e5e-a019-2f4edd1a6327"
+      }
+    ],
+    "connections": {
+      "When clicking ‘Execute workflow’": {
+        "main": [
+          [
+            {
+              "node": "Find File Types",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Execute a command": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Find File Types": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Correct .pnj to .jpeg": {
+        "main": [
+          [
+            {
+              "node": "Correct .pnj to .png",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Correct .pnj to .png": {
+        "main": [
+          [
+            {
+              "node": "Correct .pnj to .jpeg1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Correct .pnj to .jpeg1": {
+        "main": [
+          [
+            {
+              "node": "Inspiration Board External Library Rescan",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Correct .pnj to .jpeg",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "nodeGroups": [],
+    "authors": "Patricio Suarez",
+    "name": "Version c3f55596",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": [],
+  "_fileName": "immich-inspo-external-drive-scan.json",
+  "_currentSize": 20440,
+  "_githubSize": null,
+  "_changed": true,
+  "_isNew": true
+}
